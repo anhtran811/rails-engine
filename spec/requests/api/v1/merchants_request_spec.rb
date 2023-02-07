@@ -12,14 +12,14 @@ describe 'Merchants API' do
         
         merchants = JSON.parse(response.body, symbolize_names: true)
         
-        expect(merchants.count).to eq(5)
+        expect(merchants[:data].count).to eq(5)
         
-        merchants.each do |merchant|
+        merchants[:data].each do |merchant|
           expect(merchant).to have_key(:id)
-          expect(merchant[:id]).to be_an(Integer)
+          expect(merchant[:id]).to be_a(String)
           
-          expect(merchant).to have_key(:name)
-          expect(merchant[:name]).to be_an(String)
+          expect(merchant[:attributes]).to have_key(:name)
+          expect(merchant[:attributes][:name]).to be_a(String)
         end
       end
     end
@@ -32,9 +32,9 @@ describe 'Merchants API' do
 
         merchants = JSON.parse(response.body, symbolize_names: true)
 
-        expect(merchants).to be_an(Array)
-        expect(merchants.count).to eq(0)        
-        expect(merchants).to eq([])        
+        expect(merchants[:data].count).to eq(0)        
+        expect(merchants[:data]).to be_an(Array)
+        expect(merchants[:data]).to eq([])        
       end
     end
   end
@@ -50,11 +50,14 @@ describe 'Merchants API' do
         
         expect(response).to be_successful
 
-        expect(merchant).to have_key(:id)
-        expect(merchant[:id]).to be_a(Integer)
+        expect(merchant).to have_key(:data)
+        expect(merchant[:data]).to have_key(:attributes)
+  
+
+        expect(merchant[:data][:id]).to be_a(String)
         
-        expect(merchant).to have_key(:name)
-        expect(merchant[:name]).to be_a(String)
+        expect(merchant[:data][:attributes]).to have_key(:name)
+        expect(merchant[:data][:attributes][:name]).to be_a(String)
       end
     end
     
@@ -64,6 +67,8 @@ describe 'Merchants API' do
 
         get "/api/v1/merchants/#{merchant.id+1}"
         
+        expect(response).to_not be_successful
+
         merchant = JSON.parse(response.body, symbolize_names: true)
         expect(response.status).to eq(404)
         expect(merchant).to have_key(:errors)
@@ -80,25 +85,26 @@ describe 'Merchants API' do
 
         get "/api/v1/merchants/#{merchant.id}/items"
 
-        items_data = JSON.parse(response.body, symbolize_names: true)
+        items_data = JSON.parse(response.body, symbolize_names: true)[:data]
+        expect(items_data.count).to eq(10)
 
         expect(response).to be_successful
-        
         items_data.each do |item|
           expect(item).to have_key(:id)
-          expect(item[:id]).to be_a(Integer)
+          expect(item[:id]).to be_a(String)
 
-          expect(item).to have_key(:name)
-          expect(item[:name]).to be_a(String)
+          expect(item[:attributes]).to have_key(:name)
+          expect(item[:attributes][:name]).to be_a(String)
+
+          expect(item[:attributes]).to have_key(:description)
+          expect(item[:attributes][:description]).to be_a(String)
   
-          expect(item).to have_key(:description)
-          expect(item[:description]).to be_a(String)
   
-          expect(item).to have_key(:unit_price)
-          expect(item[:unit_price]).to be_a(Float)
+          expect(item[:attributes]).to have_key(:unit_price)
+          expect(item[:attributes][:unit_price]).to be_a(Float)
   
-          expect(item).to have_key(:merchant_id)
-          expect(item[:merchant_id]).to be_a(Integer)
+          expect(item[:attributes]).to have_key(:merchant_id)
+          expect(item[:attributes][:merchant_id]).to be_a(Integer)
         end
       end
     end
