@@ -83,11 +83,57 @@ describe 'Items API' do
       it 'responds with an error' do
         get "/api/v1/items/1"
 
+        expect(response).to_not be_successful
+        
         item = JSON.parse(response.body, symbolize_names: true)
+
         expect(response.status).to eq(404)
+
         expect(item).to have_key(:errors)
         expect(item[:errors]).to match(/item does not exist/)
       end
     end
+  end
+
+  describe 'POST /items' do
+    context 'when it successfully creates a new item' do
+      it 'can create a new item' do
+        merchant = create(:merchant)
+        item_params= ({
+                      name: 'Apple MacBook Pro',
+                      description: 'laptop with 15in screen',
+                      merchant_id: merchant.id,
+                      unit_price: 1500.00
+                    })
+        headers = {"CONTENT_TYPE" => "application/json" }
+
+        post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+        new_item = Item.last
+        
+        expect(response).to be_successful
+        expect(new_item.name).to eq(item_params[:name])
+        expect(new_item.description).to eq(item_params[:description])
+        expect(new_item.merchant_id).to eq(item_params[:merchant_id])
+        expect(new_item.unit_price).to eq(item_params[:unit_price])
+      end
+
+      context 'when a new item is not created' do
+        it 'fails to create an item when unit price is not valid' do
+          merchant = create(:merchant)
+          item_params= ({
+            name: 'Apple MacBook Pro',
+            description: 'laptop with 15in screen',
+            merchant_id: merchant.id,
+            unit_price: ''
+          })
+          headers = { "CONTENT_TYPE" => "application/json" }
+
+          post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+
+          expect(response).to_not be_successful
+          expect(response.status).to eq(400)
+        end
+      end
+    end 
   end
 end

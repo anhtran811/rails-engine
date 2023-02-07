@@ -10,4 +10,19 @@ class Api::V1::ItemsController < ApplicationController
       render json: { errors: 'item does not exist' }, status: 404
     end
   end
+
+  def create
+    item = Item.create(item_params)
+    if item.save
+      render json: ItemSerializer.new(Item.create!(item_params))
+    else
+      render json: { errors: "item was not created" }, status: 400
+    end
+  end
+
+  private
+
+  def item_params
+    params.require(:item).permit(:name, :description, :merchant_id, :unit_price)
+  end
 end
