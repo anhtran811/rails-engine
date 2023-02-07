@@ -133,6 +133,54 @@ describe 'Items API' do
           expect(response).to_not be_successful
           expect(response.status).to eq(400)
         end
+        
+        it 'fails to create an item when name is left empty' do
+          merchant = create(:merchant)
+          item_params= ({
+            name: '',
+            description: 'laptop with 15in screen',
+            merchant_id: merchant.id,
+            unit_price: 1500.00
+          })
+          headers = { "CONTENT_TYPE" => "application/json" }
+
+          post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+
+          expect(response).to_not be_successful
+          expect(response.status).to eq(400)
+        end
+
+        it 'fails to create an item when desciption is left empty' do
+          merchant = create(:merchant)
+          item_params= ({
+            name: 'Apple MacBook Pro',
+            description: '',
+            merchant_id: merchant.id,
+            unit_price: 1500.00
+            })
+            headers = { "CONTENT_TYPE" => "application/json" }
+            
+            post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+            
+            expect(response).to_not be_successful
+            expect(response.status).to eq(400)
+          end
+          
+        it 'fails to create an item when the merchant id is incorrect' do
+          merchant = create(:merchant)
+          item_params= ({
+            name: 'Apple MacBook Pro',
+            description: 'laptop with 15in screen',
+            merchant_id: merchant.id+1,
+            unit_price: 1500.00
+          })
+          headers = { "CONTENT_TYPE" => "application/json" }
+
+          post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+
+          expect(response).to_not be_successful
+          expect(response.status).to eq(400)
+        end
       end
     end 
   end
