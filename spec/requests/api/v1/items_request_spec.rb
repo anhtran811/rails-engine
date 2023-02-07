@@ -183,6 +183,71 @@ describe 'Items API' do
           expect(response.status).to eq(400)
         end
       end
-    end 
+    end
+
+    describe 'PATCH /items/:id' do
+      context 'if the item is successfully updated' do
+        it 'updates the item' do
+          item = create(:item)
+          previous_item_name = Item.last.name
+          item_params = { name: "Apple MacBook Pro" }
+          headers = { "CONTENT_TYPE" => "application/json" }
+
+          patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+          item = Item.find_by(id: item.id)
+
+          expect(response).to be_successful
+          expect(item.name).to eq("Apple MacBook Pro")
+          expect(item.name).to_not eq(previous_item_name)
+        end
+      end
+      
+      context 'if the item is not updated successfully' do
+        it 'fails if to update if item name is left blank' do
+          item = create(:item)
+          previous_item_name = Item.last.name
+          item_params = { name: "" }
+          headers = { "CONTENT_TYPE" => "application/json" }
+          
+          patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+          item = Item.find_by(id: item.id)
+          
+          expect(response).to_not be_successful
+          expect(response.status).to eq(404)
+          expect(item.name).to eq(previous_item_name)
+          expect(item.name).to_not eq("Apple MacBook Pro")
+        end
+
+        it 'fails if to update if item description is left blank' do
+          item = create(:item)
+          previous_item_description = Item.last.description
+          item_params = { description: "" }
+          headers = { "CONTENT_TYPE" => "application/json" }
+          
+          patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+          item = Item.find_by(id: item.id)
+          
+          expect(response).to_not be_successful
+          expect(response.status).to eq(404)
+          expect(item.description).to eq(previous_item_description)
+          expect(item.description).to_not eq("Apple MacBook Pro")
+        end
+
+        it 'fails if to update if item unit price is not a number' do
+          item = create(:item)
+          previous_item_unit_price = Item.last.unit_price
+          item_params = { unit_price: "number" }
+          headers = { "CONTENT_TYPE" => "application/json" }
+          
+          patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+          item = Item.find_by(id: item.id)
+          
+          expect(response).to_not be_successful
+          expect(response.status).to eq(404)
+          expect(item.unit_price).to eq(previous_item_unit_price)
+          expect(item.unit_price).to_not eq("Apple MacBook Pro")
+        end
+      end
+    end
   end
 end

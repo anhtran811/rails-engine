@@ -14,9 +14,18 @@ class Api::V1::ItemsController < ApplicationController
   def create
     item = Item.create(item_params)
     if item.save
-      render json: ItemSerializer.new(Item.create!(item_params)), status: 201
+      render json: ItemSerializer.new(Item.create!(item_params)), status: :created
     else
       render json: { errors: "item was not created" }, status: 400
+    end
+  end
+
+  def update
+    item = Item.find(params[:id])
+    if item.update(item_params)
+      render json: ItemSerializer.new(Item.update(item_params))
+    else
+      render json: { errors: "item was not updated "}, status: 404
     end
   end
 
