@@ -111,6 +111,7 @@ describe 'Items API' do
         new_item = Item.last
         
         expect(response).to be_successful
+        expect(response.status).to eq(201)
         expect(new_item.name).to eq(item_params[:name])
         expect(new_item.description).to eq(item_params[:description])
         expect(new_item.merchant_id).to eq(item_params[:merchant_id])

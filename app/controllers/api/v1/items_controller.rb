@@ -14,7 +14,7 @@ class Api::V1::ItemsController < ApplicationController
   def create
     item = Item.create(item_params)
     if item.save
-      render json: ItemSerializer.new(Item.create!(item_params))
+      render json: ItemSerializer.new(Item.create!(item_params)), status: 201
     else
       render json: { errors: "item was not created" }, status: 400
     end
