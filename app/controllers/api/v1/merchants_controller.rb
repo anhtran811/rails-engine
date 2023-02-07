@@ -4,7 +4,7 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def show
-    if Merchant.exists?params[:id]
+    if Merchant.exists?(params[:id])
       render json: Merchant.find(params[:id])
     else
       render json: { errors: "merchant does not exist" }, status: 404
