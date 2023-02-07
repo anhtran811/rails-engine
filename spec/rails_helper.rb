@@ -1,7 +1,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 require 'factory_bot_rails'
-require './spec/support/factory_bot'
+# require './spec/support/factory_bot'
 
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
@@ -67,4 +67,11 @@ RSpec.configure do |config|
 
   # Factory Bot
   config.include FactoryBot::Syntax::Methods
+end
+
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
 end
