@@ -34,6 +34,7 @@ describe 'Merchants API' do
 
         expect(merchants).to be_an(Array)
         expect(merchants.count).to eq(0)        
+        expect(merchants).to eq([])        
       end
     end
   end
