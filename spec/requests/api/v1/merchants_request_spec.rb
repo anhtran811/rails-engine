@@ -72,6 +72,7 @@ describe 'Merchants API' do
         expect(response.status).to eq(404)
         expect(merchant).to have_key(:errors)
         expect(merchant[:errors]).to match(/merchant does not exist/)
+        # expect(merchant[:errors]).to match(/Couldn't find Merchant with 'id'=#{merchant.id}/)
       end
     end
   end
