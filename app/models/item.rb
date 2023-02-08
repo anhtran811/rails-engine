@@ -5,4 +5,10 @@ class Item < ApplicationRecord
   
   validates :name, :description, :merchant_id, presence: true
   validates :unit_price, presence: true, numericality: true 
+
+  def self.search_by_name(name_params)
+    where("name ILIKE ?", "%#{name_params}%")
+    .order(:name)
+    .first
+  end
 end
