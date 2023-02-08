@@ -62,17 +62,20 @@ describe 'Merchants API' do
     
     context 'when the merchant does not exist' do
       it 'responds with an error' do
-        merchant = create(:merchant)
+        # merchant = create(:merchant)
 
-        get "/api/v1/merchants/#{merchant.id+1}"
+        # get "/api/v1/merchants/#{merchant.id+1}"
+        get "/api/v1/merchants/1"
+        # require 'pry'; binding.pry
         
         expect(response).to_not be_successful
 
         merchant = JSON.parse(response.body, symbolize_names: true)
+
         expect(response.status).to eq(404)
-        expect(merchant).to have_key(:errors)
-        expect(merchant[:errors]).to match(/merchant does not exist/)
-        # expect(merchant[:errors]).to match(/Couldn't find Merchant with 'id'=#{merchant.id}/)
+        expect(merchant).to have_key(:error)
+        # expect(merchant[:errors]).to match(/merchant does not exist/)
+        expect(merchant[:error]).to match(/Couldn't find Merchant with 'id'=1/)
       end
     end
   end
