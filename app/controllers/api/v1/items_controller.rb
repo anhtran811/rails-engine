@@ -4,17 +4,17 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def show
-    if Item.exists?(params[:id])
+    # if Item.exists?(params[:id])
       render json: ItemSerializer.new(Item.find(params[:id]))
-    else
-      render json: { errors: 'item does not exist' }, status: 404
-    end
+    # else
+    #   # render json: { errors: 'item does not exist' }, status: 404
+    # end
   end
 
   def create
     item = Item.create(item_params)
     if item.save
-      render json: ItemSerializer.new(Item.create!(item_params)), status: :created
+      render json: ItemSerializer.new(Item.create(item_params)), status: :created
     else
       render json: { errors: "item was not created" }, status: 400
     end
@@ -22,8 +22,9 @@ class Api::V1::ItemsController < ApplicationController
 
   def update
     item = Item.find(params[:id])
-    if item.update(item_params)
-      render json: ItemSerializer.new(Item.update(item_params))
+    item.update(item_params)
+    if item.save
+      render json: ItemSerializer.new(item)
     else
       render json: { errors: "item was not updated "}, status: 404
     end
