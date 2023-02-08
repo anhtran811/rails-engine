@@ -81,7 +81,8 @@ describe 'Items API' do
 
     context 'when the item does not exist' do
       it 'responds with an error' do
-        get "/api/v1/items/1"
+        item = create(:item)
+        get "/api/v1/items/#{Item.last.id+1}"
 
         expect(response).to_not be_successful
         
@@ -90,7 +91,7 @@ describe 'Items API' do
         expect(response.status).to eq(404)
         expect(item).to have_key(:error)
         # expect(item[:errors]).to match(/item does not exist/)
-        expect(item[:error]).to match(/Couldn't find Item with 'id'=1/)
+        expect(item[:error]).to match(/Couldn't find Item with 'id'=#{Item.last.id+1}/)
       end
     end
   end
@@ -279,11 +280,11 @@ describe 'Items API' do
 
         invoice_1 = create(:invoice, merchant_id: merchant.id, customer_id: customer.id)
         invoice_2 = create(:invoice, merchant_id: merchant.id, customer_id: customer.id)
-        # require 'pry'; binding.pry
-
+        
         invoice_item_1 = create(:invoice_item, invoice_id: invoice_1.id, item_id: item.id, quantity: 2)
         invoice_item_2 = create(:invoice_item, invoice_id: invoice_2.id, item_id: item.id, quantity: 4)
         invoice_item_3 = create(:invoice_item, invoice_id: invoice_1.id, item_id: item_2.id, quantity: 3)
+        require 'pry'; binding.pry
 
         expect(Item.count).to eq(2)
         # expect(Invoice.count).to eq(2)
