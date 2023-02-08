@@ -271,15 +271,34 @@ describe 'Items API' do
   describe 'DELETE /items/:id' do
     context 'when an item is successfully deleted' do
       it 'can delete an item' do
-        item = create(:item)
+        merchant = create(:merchant)
+        customer = create(:customer)
 
-        expect(Item.count).to eq(1)
+        item = create(:item, merchant_id: merchant.id)
+        item_2 = create(:item, merchant_id: merchant.id)
 
-        expect{ delete "/api/v1/items/#{item.id}" }.to change(Item, :count).by(-1)
+        invoice_1 = create(:invoice, merchant_id: merchant.id, customer_id: customer.id)
+        invoice_2 = create(:invoice, merchant_id: merchant.id, customer_id: customer.id)
+        # require 'pry'; binding.pry
+
+        invoice_item_1 = create(:invoice_item, invoice_id: invoice_1.id, item_id: item.id, quantity: 2)
+        invoice_item_2 = create(:invoice_item, invoice_id: invoice_2.id, item_id: item.id, quantity: 4)
+        invoice_item_3 = create(:invoice_item, invoice_id: invoice_1.id, item_id: item_2.id, quantity: 3)
+
+        expect(Item.count).to eq(2)
+        # expect(Invoice.count).to eq(2)
+        expect(InvoiceItem.count).to eq(3)
+        expect(Merchant.count).to eq(1)
+
+        delete "/api/v1/items/#{item.id}"
 
         expect(response).to be_successful
         expect(response.status).to eq(204)
         expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+        expect(Item.count).to eq(1)
+        # expect(Invoice.count).to eq(1)
+        expect(InvoiceItem.count).to eq(1)
+        expect(Merchant.count).to eq(1)
       end
     end
   end
