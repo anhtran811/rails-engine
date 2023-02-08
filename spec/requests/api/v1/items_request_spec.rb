@@ -283,4 +283,27 @@ describe 'Items API' do
       end
     end
   end
+
+  describe 'GET /items/:id/merchant' do
+    context 'when the item exists' do
+      it 'returns the merchant data associated with an item' do
+        merchant_1 = create(:merchant)
+        merchant_2 = create(:merchant)
+        item = create(:item, merchant_id: merchant_1.id)
+
+        get "/api/v1/items/#{item.id}/merchant"
+
+        merchant_data = JSON.parse(response.body, symbolize_names: true)
+      
+        expect(response).to be_successful
+        expect(merchant_data).to have_key(:data)
+
+        expect(merchant_data[:data]).to have_key(:id)
+        expect(merchant_data[:data][:id]).to be_a(String)
+        expect(merchant_data[:data]).to have_key(:attributes)
+        expect(merchant_data[:data][:attributes]).to have_key(:name)
+        expect(merchant_data[:data][:attributes][:name]).to be_a(String)
+      end
+    end
+  end
 end
