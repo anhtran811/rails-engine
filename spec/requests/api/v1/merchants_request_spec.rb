@@ -12,14 +12,14 @@ describe 'Merchants API' do
         
         merchants = JSON.parse(response.body, symbolize_names: true)
         
-        expect(merchants.count).to eq(5)
+        expect(merchants[:data].count).to eq(5)
         
-        merchants.each do |merchant|
+        merchants[:data].each do |merchant|
           expect(merchant).to have_key(:id)
-          expect(merchant[:id]).to be_an(Integer)
+          expect(merchant[:id]).to be_a(String)
           
-          expect(merchant).to have_key(:name)
-          expect(merchant[:name]).to be_an(String)
+          expect(merchant[:attributes]).to have_key(:name)
+          expect(merchant[:attributes][:name]).to be_a(String)
         end
       end
     end
@@ -32,8 +32,9 @@ describe 'Merchants API' do
 
         merchants = JSON.parse(response.body, symbolize_names: true)
 
-        expect(merchants).to be_an(Array)
-        expect(merchants.count).to eq(0)        
+        expect(merchants[:data].count).to eq(0)        
+        expect(merchants[:data]).to be_an(Array)
+        expect(merchants[:data]).to eq([])        
       end
     end
   end
@@ -49,65 +50,32 @@ describe 'Merchants API' do
         
         expect(response).to be_successful
 
-        expect(merchant).to have_key(:id)
-        expect(merchant[:id]).to be_a(Integer)
+        expect(merchant).to have_key(:data)
+        expect(merchant[:data]).to have_key(:attributes)
+  
+        expect(merchant[:data][:id]).to be_a(String)
         
-        expect(merchant).to have_key(:name)
-        expect(merchant[:name]).to be_a(String)
+        expect(merchant[:data][:attributes]).to have_key(:name)
+        expect(merchant[:data][:attributes][:name]).to be_a(String)
       end
     end
     
     context 'when the merchant does not exist' do
       it 'responds with an error' do
-        get "/api/v1/merchants/1"
-        
-        merchant = JSON.parse(response.body, symbolize_names: true)
-        expect(response.status).to eq(404)
-        expect(merchant).to have_key(:errors)
-        expect(merchant[:errors]).to match(/merchant does not exist/)
-      end
-    end
-  end
-
-  describe 'GET /merchants/:id/items' do
-    context 'when the merchant exists' do
-      it 'sends a list of all items for that merchant' do
         merchant = create(:merchant)
-        items = create_list(:item, 10, merchant_id: merchant.id)
 
-        get "/api/v1/merchants/#{merchant.id}/items"
-
-        items_data = JSON.parse(response.body, symbolize_names: true)
-
-        expect(response).to be_successful
+        get "/api/v1/merchants/#{Merchant.last.id+1}"
+        # get "/api/v1/merchants/1"
+        # require 'pry'; binding.pry
         
-        items_data.each do |item|
-          expect(item).to have_key(:id)
-          expect(item[:id]).to be_a(Integer)
+        expect(response).to_not be_successful
 
-          expect(item).to have_key(:name)
-          expect(item[:name]).to be_a(String)
-  
-          expect(item).to have_key(:description)
-          expect(item[:description]).to be_a(String)
-  
-          expect(item).to have_key(:unit_price)
-          expect(item[:unit_price]).to be_a(Float)
-  
-          expect(item).to have_key(:merchant_id)
-          expect(item[:merchant_id]).to be_a(Integer)
-        end
-      end
-    end
-    
-    context 'when the merchant does not exist' do
-      it 'responds with an error' do
-        get "/api/v1/merchants/1/items"
+        merchant = JSON.parse(response.body, symbolize_names: true)
 
-        items_data = JSON.parse(response.body, symbolize_names: true)
         expect(response.status).to eq(404)
-        expect(items_data).to have_key(:errors)
-        expect(items_data[:errors]).to match(/merchant item does not exist/)
+        expect(merchant).to have_key(:error)
+        # expect(merchant[:errors]).to match(/merchant does not exist/)
+        expect(merchant[:error]).to match(/Couldn't find Merchant with 'id'=#{Merchant.last.id+1}/)
       end
     end
   end
