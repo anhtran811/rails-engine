@@ -266,5 +266,15 @@ describe 'Items API' do
         end
       end
     end
+
+    describe 'DELETE /items/:id' do
+      context 'when an item is successfully deleted' do
+        it 'can delete an item' do
+          item = create(:item)
+
+          
+        end
+      end
+    end
   end
 end
