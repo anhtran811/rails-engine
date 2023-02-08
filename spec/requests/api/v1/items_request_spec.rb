@@ -372,4 +372,38 @@ describe 'Items API' do
       end
     end
   end
+
+  #non-restful search endpoints
+
+  describe 'find one item' do
+    it 'if found, can return one single object, by name in case-insensitive alphabetical order' do
+      merchant_1 = create(:merchant)
+      item_1 = create(:item, name: "Turing", description: "This is a school", merchant_id: merchant_1.id)
+      item_2 = create(:item, name: "Ring World", description: "This is a game", merchant_id: merchant_1.id)
+      item_3 = create(:item, name: "Titanium Ring", description: "Beautiful ring", merchant_id: merchant_1.id)
+
+      get "/api/v1/items/find?name=ring"
+
+      item_data = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to be_successful
+      expect(item_data).to have_key(:data)
+      expect(item_data[:data]).to have_key(:id)
+      
+      item = item_data[:data]
+      
+      expect(item).to have_key(:attributes)
+      expect(item[:attributes]).to have_key(:name)
+      expect(item[:attributes][:name]).to eq(item_2.name)
+
+      expect(item[:attributes]).to have_key(:description)
+      expect(item[:attributes][:description]).to eq(item_2.description)
+
+      expect(item[:attributes]).to have_key(:unit_price)
+      expect(item[:attributes][:unit_price]).to eq(item_2.unit_price)
+
+      expect(item[:attributes]).to have_key(:merchant_id)
+      expect(item[:attributes][:merchant_id]).to eq(item_2.merchant_id)
+    end
+  end
 end
