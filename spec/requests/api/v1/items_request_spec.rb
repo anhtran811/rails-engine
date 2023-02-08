@@ -35,7 +35,7 @@ describe 'Items API' do
         end
       end
     end
-
+   
     context 'when there are no items in the database' do
       it 'returns an empty array' do
         get '/api/v1/items'
@@ -100,11 +100,11 @@ describe 'Items API' do
       it 'can create a new item' do
         merchant = create(:merchant)
         item_params= ({
-                      name: 'Apple MacBook Pro',
-                      description: 'laptop with 15in screen',
-                      merchant_id: merchant.id,
-                      unit_price: 1500.00
-                    })
+                        name: 'Apple MacBook Pro',
+                        description: 'laptop with 15in screen',
+                        merchant_id: merchant.id,
+                        unit_price: 1500.00
+                      })
         headers = {"CONTENT_TYPE" => "application/json" }
 
         post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
@@ -117,169 +117,169 @@ describe 'Items API' do
         expect(new_item.merchant_id).to eq(item_params[:merchant_id])
         expect(new_item.unit_price).to eq(item_params[:unit_price])
       end
+    end
 
-      context 'when a new item is not created' do
-        it 'fails to create an item when unit price is not valid' do
-          merchant = create(:merchant)
-          item_params= ({
-            name: 'Apple MacBook Pro',
-            description: 'laptop with 15in screen',
-            merchant_id: merchant.id,
-            unit_price: ""
-          })
-          headers = { "CONTENT_TYPE" => "application/json" }
+    context 'when a new item is not created' do
+      it 'fails to create an item when unit price is not valid' do
+        merchant = create(:merchant)
+        item_params= ({
+                        name: 'Apple MacBook Pro',
+                        description: 'laptop with 15in screen',
+                        merchant_id: merchant.id,
+                        unit_price: ""
+                      })
+        headers = { "CONTENT_TYPE" => "application/json" }
 
-          post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
-          response_body = JSON.parse(response.body, symbolize_names: true)
+        post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+        response_body = JSON.parse(response.body, symbolize_names: true)
 
-          expect(response).to_not be_successful
-          expect(response.status).to eq(400)
-    
-          expect(response_body[:errors]).to_not eq(/item was not updated/)
-        end
+        expect(response).to_not be_successful
+        expect(response.status).to eq(400)
+  
+        expect(response_body[:errors]).to_not eq(/item was not updated/)
+      end
         
-        it 'fails to create an item when name is left empty' do
-          merchant = create(:merchant)
-          item_params= ({
-            name: '',
-            description: 'laptop with 15in screen',
-            merchant_id: merchant.id,
-            unit_price: 1500.00
-          })
-          headers = { "CONTENT_TYPE" => "application/json" }
+      it 'fails to create an item when name is left empty' do
+        merchant = create(:merchant)
+        item_params= ({
+          name: '',
+          description: 'laptop with 15in screen',
+          merchant_id: merchant.id,
+          unit_price: 1500.00
+        })
+        headers = { "CONTENT_TYPE" => "application/json" }
 
-          post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
-          response_body = JSON.parse(response.body, symbolize_names: true)
+        post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+        response_body = JSON.parse(response.body, symbolize_names: true)
 
-          expect(response).to_not be_successful
-          expect(response.status).to eq(400)
-          expect(response_body[:errors]).to_not eq(/item was not updated/)
-        end
+        expect(response).to_not be_successful
+        expect(response.status).to eq(400)
+        expect(response_body[:errors]).to_not eq(/item was not updated/)
+      end
 
-        it 'fails to create an item when desciption is left empty' do
-          merchant = create(:merchant)
-          item_params= ({
-            name: 'Apple MacBook Pro',
-            description: '',
-            merchant_id: merchant.id,
-            unit_price: 1500.00
-            })
-            headers = { "CONTENT_TYPE" => "application/json" }
-            
-            post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
-            response_body = JSON.parse(response.body, symbolize_names: true)
-            
-            expect(response).to_not be_successful
-            expect(response.status).to eq(400)
-            expect(response_body[:errors]).to_not eq(/item was not updated/)
-          end
+      it 'fails to create an item when desciption is left empty' do
+        merchant = create(:merchant)
+        item_params= ({
+                        name: 'Apple MacBook Pro',
+                        description: '',
+                        merchant_id: merchant.id,
+                        unit_price: 1500.00
+                      })
+        headers = { "CONTENT_TYPE" => "application/json" }
+        
+        post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+        response_body = JSON.parse(response.body, symbolize_names: true)
+        
+        expect(response).to_not be_successful
+        expect(response.status).to eq(400)
+        expect(response_body[:errors]).to_not eq(/item was not updated/)
+      end
           
-        it 'fails to create an item when the merchant id is incorrect' do
-          merchant = create(:merchant)
-          item_params= ({
-            name: 'Apple MacBook Pro',
-            description: 'laptop with 15in screen',
-            merchant_id: merchant.id+1,
-            unit_price: 1500.00
-          })
-          headers = { "CONTENT_TYPE" => "application/json" }
+      it 'fails to create an item when the merchant id is incorrect' do
+        merchant = create(:merchant)
+        item_params= ({
+                        name: 'Apple MacBook Pro',
+                        description: 'laptop with 15in screen',
+                        merchant_id: merchant.id+1,
+                        unit_price: 1500.00
+                      })
+        headers = { "CONTENT_TYPE" => "application/json" }
 
-          post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
-          response_body = JSON.parse(response.body, symbolize_names: true)
+        post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+        response_body = JSON.parse(response.body, symbolize_names: true)
 
-          expect(response).to_not be_successful
-          expect(response.status).to eq(400)
-          expect(response_body[:errors]).to_not eq(/item was not updated/)
-        end
+        expect(response).to_not be_successful
+        expect(response.status).to eq(400)
+        expect(response_body[:errors]).to_not eq(/item was not updated/)
       end
     end
+  end
 
-    describe 'PATCH /items/:id' do
-      context 'if the item is successfully updated' do
-        it 'updates the item' do
-          item = create(:item)
-          previous_item_name = Item.last.name
-          item_params = { name: "Apple MacBook Pro" }
-          headers = { "CONTENT_TYPE" => "application/json" }
+  describe 'PATCH /items/:id' do
+    context 'if the item is successfully updated' do
+      it 'updates the item' do
+        item = create(:item)
+        previous_item_name = Item.last.name
+        item_params = { name: "Apple MacBook Pro" }
+        headers = { "CONTENT_TYPE" => "application/json" }
 
-          patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
-          response_body = JSON.parse(response.body, symbolize_names: true)
-          item = Item.find_by(id: item.id)
+        patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+        response_body = JSON.parse(response.body, symbolize_names: true)
+        item = Item.find_by(id: item.id)
 
-          expect(response).to be_successful
-          expect(item.name).to eq("Apple MacBook Pro")
-          expect(item.name).to_not eq(previous_item_name)
-          expect(response_body[:errors]).to_not eq(/item was not updated/)
-        end
+        expect(response).to be_successful
+        expect(item.name).to eq("Apple MacBook Pro")
+        expect(item.name).to_not eq(previous_item_name)
+        expect(response_body[:errors]).to_not eq(/item was not updated/)
       end
+    end
       
-      context 'if the item is not updated successfully' do
-        it 'fails if to update if item name is left blank' do
-          item = create(:item)
-          previous_item_name = Item.last.name
-          item_params = { name: "" }
-          headers = { "CONTENT_TYPE" => "application/json" }
-          
-          patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
-          response_body = JSON.parse(response.body, symbolize_names: true)
-          item = Item.find_by(id: item.id)
-          
-          expect(response).to_not be_successful
-          expect(response.status).to eq(404)
-          expect(item.name).to eq(previous_item_name)
-          expect(item.name).to_not eq("Apple MacBook Pro")
-          expect(response_body[:errors]).to_not eq(/item was not updated/)
-        end
+    context 'if the item is not updated successfully' do
+      it 'fails if to update if item name is left blank' do
+        item = create(:item)
+        previous_item_name = Item.last.name
+        item_params = { name: "" }
+        headers = { "CONTENT_TYPE" => "application/json" }
+        
+        patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+        response_body = JSON.parse(response.body, symbolize_names: true)
+        item = Item.find_by(id: item.id)
+        
+        expect(response).to_not be_successful
+        expect(response.status).to eq(404)
+        expect(item.name).to eq(previous_item_name)
+        expect(item.name).to_not eq("Apple MacBook Pro")
+        expect(response_body[:errors]).to_not eq(/item was not updated/)
+      end
 
-        it 'fails if to update if item description is left blank' do
-          item = create(:item)
-          previous_item_description = Item.last.description
-          item_params = { description: "" }
-          headers = { "CONTENT_TYPE" => "application/json" }
-          
-          patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
-          response_body = JSON.parse(response.body, symbolize_names: true)
-          item = Item.find_by(id: item.id)
-          
-          expect(response).to_not be_successful
-          expect(response.status).to eq(404)
-          expect(item.description).to eq(previous_item_description)
-          expect(item.description).to_not eq("Apple MacBook Pro")
-          expect(response_body[:errors]).to_not eq(/item was not updated/)
-        end
+      it 'fails if to update if item description is left blank' do
+        item = create(:item)
+        previous_item_description = Item.last.description
+        item_params = { description: "" }
+        headers = { "CONTENT_TYPE" => "application/json" }
+        
+        patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+        response_body = JSON.parse(response.body, symbolize_names: true)
+        item = Item.find_by(id: item.id)
+        
+        expect(response).to_not be_successful
+        expect(response.status).to eq(404)
+        expect(item.description).to eq(previous_item_description)
+        expect(item.description).to_not eq("Apple MacBook Pro")
+        expect(response_body[:errors]).to_not eq(/item was not updated/)
+      end
 
-        it 'fails if to update if item unit price is not a number' do
-          item = create(:item)
-          previous_item_unit_price = Item.last.unit_price
-          item_params = { unit_price: "number" }
-          headers = { "CONTENT_TYPE" => "application/json" }
-          
-          patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
-          response_body = JSON.parse(response.body, symbolize_names: true)
-          item = Item.find_by(id: item.id)
-          
-          expect(response).to_not be_successful
-          expect(response.status).to eq(404)
-          expect(item.unit_price).to eq(previous_item_unit_price)
-          expect(item.unit_price).to_not eq("Apple MacBook Pro")
-          expect(response_body[:errors]).to_not eq(/item was not updated/)
-        end
+      it 'fails if to update if item unit price is not a number' do
+        item = create(:item)
+        previous_item_unit_price = Item.last.unit_price
+        item_params = { unit_price: "number" }
+        headers = { "CONTENT_TYPE" => "application/json" }
+        
+        patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+        response_body = JSON.parse(response.body, symbolize_names: true)
+        item = Item.find_by(id: item.id)
+        
+        expect(response).to_not be_successful
+        expect(response.status).to eq(404)
+        expect(item.unit_price).to eq(previous_item_unit_price)
+        expect(item.unit_price).to_not eq("Apple MacBook Pro")
+        expect(response_body[:errors]).to_not eq(/item was not updated/)
       end
     end
+  end
 
-    describe 'DELETE /items/:id' do
-      context 'when an item is successfully deleted' do
-        it 'can delete an item' do
-          item = create(:item)
+  describe 'DELETE /items/:id' do
+    context 'when an item is successfully deleted' do
+      it 'can delete an item' do
+        item = create(:item)
 
-          expect(Item.count).to eq(1)
+        expect(Item.count).to eq(1)
 
-          expect{ delete "/api/v1/items/#{item.id}" }.to change(Item, :count).by(-1)
+        expect{ delete "/api/v1/items/#{item.id}" }.to change(Item, :count).by(-1)
 
-          expect(response).to be_successful
-          expect(response.status).to eq(204)
-          expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
-        end
+        expect(response).to be_successful
+        expect(response.status).to eq(204)
+        expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
   end
