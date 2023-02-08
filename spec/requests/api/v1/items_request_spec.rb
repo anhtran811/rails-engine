@@ -211,7 +211,6 @@ describe 'Items API' do
         expect(response).to be_successful
         expect(item.name).to eq("Apple MacBook Pro")
         expect(item.name).to_not eq(previous_item_name)
-        expect(response_body[:errors]).to_not eq(/item was not updated/)
       end
     end
       
@@ -230,7 +229,7 @@ describe 'Items API' do
         expect(response.status).to eq(404)
         expect(item.name).to eq(previous_item_name)
         expect(item.name).to_not eq("Apple MacBook Pro")
-        expect(response_body[:errors]).to_not eq(/item was not updated/)
+        expect(response_body[:errors]).to match(/item was not updated/)
       end
 
       it 'fails if to update if item description is left blank' do
@@ -247,7 +246,7 @@ describe 'Items API' do
         expect(response.status).to eq(404)
         expect(item.description).to eq(previous_item_description)
         expect(item.description).to_not eq("Apple MacBook Pro")
-        expect(response_body[:errors]).to_not eq(/item was not updated/)
+        expect(response_body[:errors]).to match(/item was not updated/)
       end
 
       it 'fails if to update if item unit price is not a number' do
@@ -264,7 +263,7 @@ describe 'Items API' do
         expect(response.status).to eq(404)
         expect(item.unit_price).to eq(previous_item_unit_price)
         expect(item.unit_price).to_not eq("Apple MacBook Pro")
-        expect(response_body[:errors]).to_not eq(/item was not updated/)
+        expect(response_body[:errors]).to match(/item was not updated/)
       end
     end
   end
@@ -284,10 +283,9 @@ describe 'Items API' do
         invoice_item_1 = create(:invoice_item, invoice_id: invoice_1.id, item_id: item.id, quantity: 2)
         invoice_item_2 = create(:invoice_item, invoice_id: invoice_2.id, item_id: item.id, quantity: 4)
         invoice_item_3 = create(:invoice_item, invoice_id: invoice_1.id, item_id: item_2.id, quantity: 3)
-        require 'pry'; binding.pry
-
+        
         expect(Item.count).to eq(2)
-        # expect(Invoice.count).to eq(2)
+        expect(Invoice.count).to eq(2)
         expect(InvoiceItem.count).to eq(3)
         expect(Merchant.count).to eq(1)
 
@@ -297,8 +295,41 @@ describe 'Items API' do
         expect(response.status).to eq(204)
         expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
         expect(Item.count).to eq(1)
-        # expect(Invoice.count).to eq(1)
+        expect(Invoice.count).to eq(1)
         expect(InvoiceItem.count).to eq(1)
+        expect(Merchant.count).to eq(1)
+      end
+    end
+
+    context 'when the item does not exist' do
+      it 'sends an error message' do
+        merchant = create(:merchant)
+        customer = create(:customer)
+
+        item = create(:item, merchant_id: merchant.id)
+        item_2 = create(:item, merchant_id: merchant.id)
+
+        invoice_1 = create(:invoice, merchant_id: merchant.id, customer_id: customer.id)
+        invoice_2 = create(:invoice, merchant_id: merchant.id, customer_id: customer.id)
+        
+        invoice_item_1 = create(:invoice_item, invoice_id: invoice_1.id, item_id: item.id, quantity: 2)
+        invoice_item_2 = create(:invoice_item, invoice_id: invoice_2.id, item_id: item.id, quantity: 4)
+        invoice_item_3 = create(:invoice_item, invoice_id: invoice_1.id, item_id: item_2.id, quantity: 3)
+        
+        expect(Item.count).to eq(2)
+        expect(Invoice.count).to eq(2)
+        expect(InvoiceItem.count).to eq(3)
+        expect(Merchant.count).to eq(1)
+
+        delete "/api/v1/items/#{Item.last.id+1}"
+        response_body = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response).to_not be_successful
+        expect(response.status).to eq(404)
+        expect(response_body[:error]).to match(/Couldn't find Item with 'id'=#{Item.last.id+1}/)
+        expect(Item.count).to eq(2)
+        expect(Invoice.count).to eq(2)
+        expect(InvoiceItem.count).to eq(3)
         expect(Merchant.count).to eq(1)
       end
     end
@@ -323,6 +354,21 @@ describe 'Items API' do
         expect(merchant_data[:data]).to have_key(:attributes)
         expect(merchant_data[:data][:attributes]).to have_key(:name)
         expect(merchant_data[:data][:attributes][:name]).to be_a(String)
+      end
+    end
+
+    context 'when the item does not exist' do
+      it 'returns an errors' do
+        merchant_1 = create(:merchant)
+        item = create(:item, merchant_id: merchant_1.id)
+
+        get "/api/v1/items/#{Item.last.id+1}/merchant"
+
+        response_body = JSON.parse(response.body, symbolize_names: true)
+      
+        expect(response).to_not be_successful
+        expect(response.status).to eq(404)
+        expect(response_body[:error]).to match(/Couldn't find Item with 'id'=#{Item.last.id+1}/)
       end
     end
   end

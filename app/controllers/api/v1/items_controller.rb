@@ -26,15 +26,18 @@ class Api::V1::ItemsController < ApplicationController
     if item.save
       render json: ItemSerializer.new(item)
     else
-      render json: { errors: "item was not updated "}, status: 404
+      render json: { errors: "item was not updated" }, status: 404
     end
   end
 
   def destroy
-  
-    # item = Item.find(params[:id])
-    # item.destroy
-    render json: Item.destroy(params[:id]), status: 204
+    item = Item.find(params[:id])
+      item.invoices.each do |invoice|
+        if invoice.has_one_item?
+          invoice.destroy
+        end
+      end
+    item.destroy
   end
 
   private
