@@ -618,13 +618,15 @@ describe 'Items API' do
       item_3 = create(:item, name: "Titanium Ring", unit_price: 500.00, merchant_id: merchant_1.id)
 
       get "/api/v1/items/find"
+     
       response_body = JSON.parse(response.body, symbolize_names: true)
 
       expect(response).to_not be_successful
       expect(response.status).to eq(400)
 
       expect(response_body).to have_key(:data)
-      expect(response_body[:data]).to eq({})
+      expect(response_body[:data]).to have_key(:errors)
+      expect(response_body[:data][:errors]).to match(/parameter cannot be missing/)
     end
 
     xit 'cannot have an empty parameter' do
@@ -635,7 +637,7 @@ describe 'Items API' do
 
       get "/api/v1/items/find?name="
       response_body = JSON.parse(response.body, symbolize_names: true)
-# require 'pry'; binding.pry
+
       expect(response).to_not be_successful
       expect(response.status).to eq(400)
 
