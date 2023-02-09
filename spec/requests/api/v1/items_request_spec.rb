@@ -586,5 +586,57 @@ describe 'Items API' do
       expect(response_body).to have_key(:data)
       expect(response_body[:data]).to eq({})
     end
+
+    it 'cannot send both name and min and/or max price as a parameter' do
+      merchant_1 = create(:merchant)
+      item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
+      item_2 = create(:item, name: "Ring World", unit_price: 100.00, merchant_id: merchant_1.id)
+      item_3 = create(:item, name: "Titanium Ring", unit_price: 500.00, merchant_id: merchant_1.id)
+      
+      get "/api/v1/items/find?name=ring&min_price=50"
+      item_data = JSON.parse(response.body, symbolize_names: true)
+        
+      expect(response).to_not be_successful
+      expect(response.status).to eq(400)
+      expect(item_data).to have_key(:data)
+      expect(item_data[:data]).to be_a(Hash)
+      expect(item_data[:data][:errors]).to match(/cannot send name with price/)
+
+      get "/api/v1/items/find?name=ring&max_price=50"
+      item_data = JSON.parse(response.body, symbolize_names: true)
+        
+      expect(response).to_not be_successful
+      expect(response.status).to eq(400)
+      expect(item_data).to have_key(:data)
+      expect(item_data[:data]).to be_a(Hash)
+      expect(item_data[:data][:errors]).to match(/cannot send name with price/)
+      
+      get "/api/v1/items/find?name=ring&min_price=50&max_price=250"
+      item_data = JSON.parse(response.body, symbolize_names: true)
+        
+      expect(response).to_not be_successful
+      expect(response.status).to eq(400)
+      expect(item_data).to have_key(:data)
+      expect(item_data[:data]).to be_a(Hash)
+      expect(item_data[:data][:errors]).to match(/cannot send name with price/)
+    end
+    
+    xit 'cannot send a min/max price less than 0' do
+      merchant_1 = create(:merchant)
+      item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
+      item_2 = create(:item, name: "Ring World", unit_price: 100.00, merchant_id: merchant_1.id)
+      item_3 = create(:item, name: "Titanium Ring", unit_price: 500.00, merchant_id: merchant_1.id)
+      
+      get "/api/v1/items/find?min_price=-1"
+      item_data = JSON.parse(response.body, symbolize_names: true)
+      expect(response).to_not be_successful
+      expect(response.status).to eq(400)
+      expect(item_data).to have_key(:data)
+      expect(item_data[:data]).to be_a(Hash)
+      expect(item_data[:data][:errors]).to match(/price cannot be less than zero/)
+
+      get "/api/v1/items/find?max_price=-50"
+    
+    end
   end
 end

@@ -22,16 +22,21 @@ class Api::V1::Items::SearchController < ApplicationController
   # end
 
   def show
-    if params[:name]
+    if (params[:name] && params[:min_price] || params[:name] && params[:max_price])
+      render json: { data: { errors: "cannot send name with price" } }, status: 400
+    elsif params[:name]
       by_name
-    else
+    elsif
       by_price
+    else params[:find].nil?
+      render json: { data: { errors: "parameter cannot be missing" } }, status: 400
     end
   end
 
   private
 
   def by_name 
+    # require 'pry'; binding.pry
     if Item.search_by_name(params[:name]).nil?
       render json: { data: {} }
     else
@@ -49,6 +54,7 @@ class Api::V1::Items::SearchController < ApplicationController
   # end
 
   def by_price 
+    # require 'pry'; binding.pry
     if params[:min_price] && params[:max_price]
       if Item.search_by_price(params[:min_price], params[:max_price]).nil?
         render json: { data: {} }
