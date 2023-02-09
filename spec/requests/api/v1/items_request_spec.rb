@@ -409,7 +409,7 @@ describe 'Items API' do
     end
 
     context 'if the item is not found' do
-      it 'if found, can return one single object, by name in case-insensitive alphabetical order' do
+      it 'will return a hash if parameters do not match items' do
         merchant_1 = create(:merchant)
         item_1 = create(:item, name: "Turing", description: "This is a school", merchant_id: merchant_1.id)
         item_2 = create(:item, name: "Ring World", description: "This is a game", merchant_id: merchant_1.id)
