@@ -65,8 +65,6 @@ describe 'Merchants API' do
         merchant = create(:merchant)
 
         get "/api/v1/merchants/#{Merchant.last.id+1}"
-        # get "/api/v1/merchants/1"
-        # require 'pry'; binding.pry
         
         expect(response).to_not be_successful
 
@@ -74,8 +72,45 @@ describe 'Merchants API' do
 
         expect(response.status).to eq(404)
         expect(merchant).to have_key(:error)
-        # expect(merchant[:errors]).to match(/merchant does not exist/)
         expect(merchant[:error]).to match(/Couldn't find Merchant with 'id'=#{Merchant.last.id+1}/)
+      end
+    end
+  end
+
+  describe 'find all merchants by name' do
+    context 'if merchant is found' do
+      it 'returns a collection of merchants, by name in case-insensitive alphabetical order' do
+        merchant_1 = create(:merchant, name: "Harry Potter")
+        merchant_2 = create(:merchant, name: "Hermione Granger")
+        merchant_3 = create(:merchant, name: "Ronald Weasley")
+        merchant_4 = create(:merchant, name: "Severus Snape")
+      
+        get '/api/v1/merchants/find_all?name=er'
+
+        merchants_data = JSON.parse(response.body, symbolize_names: true)
+        expect(response).to be_successful
+        expect(merchants_data).to have_key(:data)
+        expect(merchants_data[:data].count).to eq(3)
+       
+        merchants_data[:data].each do |merchant|
+          expect(merchant).to have_key(:attributes)
+          expect(merchant[:attributes]).to have_key(:name)
+          expect(merchant[:attributes][:name]).to be_a(String)
+        end
+      end
+    end
+
+    context 'if the merchant is not found' do
+      it 'it will return a hash if parameters does not match a merchant' do
+        merchant_1 = create(:merchant)
+
+        get "/api/v1/merchants/find_all?name=person"
+
+        merchant_data = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response).to be_successful
+        expect(merchant_data).to have_key(:data)
+        expect(merchant_data).to be_a(Hash)
       end
     end
   end
