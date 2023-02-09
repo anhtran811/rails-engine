@@ -437,7 +437,6 @@ describe 'Items API' do
         get "/api/v1/items/find?min_price=150"
 
         item_data = JSON.parse(response.body, symbolize_names: true)
-
         expect(response).to be_successful
 
         expect(item_data).to have_key(:data)
@@ -555,38 +554,6 @@ describe 'Items API' do
   end
 
   describe 'invalid inputs' do
-    xit 'cannot have a parameter missing' do
-      merchant_1 = create(:merchant)
-      item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
-      item_2 = create(:item, name: "Ring World", unit_price: 100.00, merchant_id: merchant_1.id)
-      item_3 = create(:item, name: "Titanium Ring", unit_price: 500.00, merchant_id: merchant_1.id)
-
-      get "/api/v1/items/find"
-      response_body = JSON.parse(response.body, symbolize_names: true)
-
-      expect(response).to_not be_successful
-      expect(response.status).to eq(400)
-
-      expect(response_body).to have_key(:data)
-      expect(response_body[:data]).to eq({})
-    end
-
-    xit 'cannot have an empty parameter' do
-      merchant_1 = create(:merchant)
-      item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
-      item_2 = create(:item, name: "Ring World", unit_price: 100.00, merchant_id: merchant_1.id)
-      item_3 = create(:item, name: "Titanium Ring", unit_price: 500.00, merchant_id: merchant_1.id)
-
-      get "/api/v1/items/find?name="
-      response_body = JSON.parse(response.body, symbolize_names: true)
-
-      expect(response).to_not be_successful
-      expect(response.status).to eq(400)
-
-      expect(response_body).to have_key(:data)
-      expect(response_body[:data]).to eq({})
-    end
-
     it 'cannot send both name and min and/or max price as a parameter' do
       merchant_1 = create(:merchant)
       item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
@@ -621,7 +588,7 @@ describe 'Items API' do
       expect(item_data[:data][:errors]).to match(/cannot send name with price/)
     end
     
-    xit 'cannot send a min/max price less than 0' do
+    it 'cannot send a min/max price less than 0' do
       merchant_1 = create(:merchant)
       item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
       item_2 = create(:item, name: "Ring World", unit_price: 100.00, merchant_id: merchant_1.id)
@@ -631,12 +598,50 @@ describe 'Items API' do
       item_data = JSON.parse(response.body, symbolize_names: true)
       expect(response).to_not be_successful
       expect(response.status).to eq(400)
-      expect(item_data).to have_key(:data)
-      expect(item_data[:data]).to be_a(Hash)
-      expect(item_data[:data][:errors]).to match(/price cannot be less than zero/)
+      expect(item_data).to have_key(:errors)
+      expect(item_data[:errors]).to be_a(String)
+      expect(item_data[:errors]).to match(/price cannot be less than zero/)
 
       get "/api/v1/items/find?max_price=-50"
-    
+      item_data = JSON.parse(response.body, symbolize_names: true)
+      expect(response).to_not be_successful
+      expect(response.status).to eq(400)
+      expect(item_data).to have_key(:errors)
+      expect(item_data[:errors]).to be_a(String)
+      expect(item_data[:errors]).to match(/price cannot be less than zero/)
+    end
+
+    xit 'cannot have a parameter missing' do
+      merchant_1 = create(:merchant)
+      item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
+      item_2 = create(:item, name: "Ring World", unit_price: 100.00, merchant_id: merchant_1.id)
+      item_3 = create(:item, name: "Titanium Ring", unit_price: 500.00, merchant_id: merchant_1.id)
+
+      get "/api/v1/items/find"
+      response_body = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to_not be_successful
+      expect(response.status).to eq(400)
+
+      expect(response_body).to have_key(:data)
+      expect(response_body[:data]).to eq({})
+    end
+
+    xit 'cannot have an empty parameter' do
+      merchant_1 = create(:merchant)
+      item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
+      item_2 = create(:item, name: "Ring World", unit_price: 100.00, merchant_id: merchant_1.id)
+      item_3 = create(:item, name: "Titanium Ring", unit_price: 500.00, merchant_id: merchant_1.id)
+
+      get "/api/v1/items/find?name="
+      response_body = JSON.parse(response.body, symbolize_names: true)
+# require 'pry'; binding.pry
+      expect(response).to_not be_successful
+      expect(response.status).to eq(400)
+
+      expect(response_body).to have_key(:data)
+      # expect(response_body[:data]).to eq({})
+      expect(response_body[:data][:errors]).to match(/parameter cannot be empty/)
     end
   end
 end
