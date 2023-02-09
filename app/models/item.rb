@@ -11,4 +11,12 @@ class Item < ApplicationRecord
     .order(:name)
     .first
   end
+
+  def self.search_by_price(min, max)
+    if max == nil
+      where("unit_price >= ?", "#{min}").order(:name).first
+    elsif min == nil
+      where("unit_price <= ?", "#{max}").order(:name).first
+    end
+  end
 end
