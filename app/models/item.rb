@@ -17,6 +17,8 @@ class Item < ApplicationRecord
       where("unit_price >= ?", "#{min}").order(:name).first
     elsif min == nil
       where("unit_price <= ?", "#{max}").order(:name).first
+    else
+      where("unit_price >= ? AND unit_price <= ?", "#{min}", "#{max}").order(:name).first 
     end
   end
 end

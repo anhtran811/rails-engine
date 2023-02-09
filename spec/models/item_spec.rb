@@ -45,6 +45,15 @@ RSpec.describe Item, type: :model do
 
         expect(Item.search_by_price(nil, 550.00)).to eq(item_2)
       end
+
+      it 'it returns the first item within a price range' do
+        merchant_1 = create(:merchant)
+        item_1 = create(:item, name: "Turing", unit_price: 1000.00, merchant_id: merchant_1.id)
+        item_2 = create(:item, name: "Ring World", unit_price: 100.00, merchant_id: merchant_1.id)
+        item_3 = create(:item, name: "Titanium Ring", unit_price: 500.00, merchant_id: merchant_1.id)
+
+        expect(Item.search_by_price(500.00, 1000.00)).to eq(item_3)
+      end
     end
   end
 end
