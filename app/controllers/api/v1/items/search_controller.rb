@@ -12,7 +12,7 @@ class Api::V1::Items::SearchController < ApplicationController
   private
 
   def by_invalid_search
-    if params[:name] == "" && params[:name].nil?
+    if params[:name] == ""
       render json: { data: { errors: "parameter cannot be empty" } }, status: 400
     else
       render json: { data: { errors: "parameter cannot be missing" } }, status: 400
@@ -29,7 +29,7 @@ class Api::V1::Items::SearchController < ApplicationController
 
   def by_price 
     if (params[:name] && params[:min_price] || params[:name] && params[:max_price])
-      render json: { data: { errors: "cannot send name with price" } }, status: 400
+      render json: ErrorSerializer.invalid_parameters("cannot send name with price"), status: 400
     else
       if (params[:min_price].to_f < 0) || (params[:max_price].to_f < 0)
         render json: { errors: "price cannot be less than zero" }, status: 400
@@ -70,17 +70,13 @@ end
 #         # end
 #       elsif 
      
-#         (params[:min_price] || params[:max_price] ) && ((params[:min_price].to_f) > (params[:max_price].to_f))
+#         (params[:min_price] && params[:max_price] ) && ((params[:min_price].to_f) > (params[:max_price].to_f))
 #         require 'pry'; binding.pry
 #         # if Item.search_by_price(params[:min_price], nil).nil?
 #         # require 'pry'; binding.pry
-#           if params[:max_price].nil? 
-#             require 'pry'; binding.pry
-#             render json: ItemSerializer.new(Item.search_by_price(params[:min_price], params[:max_price]))
-#           else
-#             require 'pry'; binding.pry
+  
 #             render json: { data: {} }
-#           end
+          
         
 #           # require 'pry'; binding.pry
 #         # else

@@ -4,4 +4,12 @@ class ErrorSerializer
       "data": {}
     }
   end
+
+  def self.invalid_parameters(error) 
+    {
+      "data": {
+                "errors": error
+              }
+    }
+  end
 end

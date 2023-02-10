@@ -437,6 +437,7 @@ describe 'Items API' do
         get "/api/v1/items/find?min_price=150"
 
         item_data = JSON.parse(response.body, symbolize_names: true)
+  
         expect(response).to be_successful
 
         expect(item_data).to have_key(:data)
@@ -531,6 +532,7 @@ describe 'Items API' do
         get "/api/v1/items/find?min_price=1500"
 
         item_data = JSON.parse(response.body, symbolize_names: true)
+        # require 'pry'; binding.pry
         expect(response).to be_successful
         expect(item_data).to have_key(:data)
         expect(item_data).to be_a(Hash)
@@ -562,7 +564,7 @@ describe 'Items API' do
       
       get "/api/v1/items/find?name=ring&min_price=50"
       item_data = JSON.parse(response.body, symbolize_names: true)
-        
+        # require 'pry'; binding.pry
       expect(response).to_not be_successful
       expect(response.status).to eq(400)
       expect(item_data).to have_key(:data)
@@ -637,6 +639,7 @@ describe 'Items API' do
 
       get "/api/v1/items/find?name="
       response_body = JSON.parse(response.body, symbolize_names: true)
+      # require 'pry'; binding.pry
 
       expect(response).to_not be_successful
       expect(response.status).to eq(400)
