@@ -21,7 +21,7 @@ class Api::V1::Items::SearchController < ApplicationController
 
   def by_name 
     if Item.search_by_name(params[:name]).nil?
-      render json: { data: { errors: "parameter cannot be empty" } }
+      render json: ErrorSerializer.invalid_parameters("parameter cannot be empty")
     else
       render json: ItemSerializer.new(Item.search_by_name(params[:name]))
     end

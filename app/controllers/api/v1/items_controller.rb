@@ -12,7 +12,7 @@ class Api::V1::ItemsController < ApplicationController
     if item.save
       render json: ItemSerializer.new(Item.create(item_params)), status: :created
     else
-      render json: { errors: "item was not created" }, status: 400
+      render json: ErrorSerializer.bad_request("item was not created"), status: 400
     end
   end
 
@@ -22,7 +22,7 @@ class Api::V1::ItemsController < ApplicationController
     if item.save
       render json: ItemSerializer.new(item)
     else
-      render json: { errors: "item was not updated" }, status: 404
+      render json: ErrorSerializer.bad_request("item was not updated"), status: 404
     end
   end
 
