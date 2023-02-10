@@ -532,7 +532,7 @@ describe 'Items API' do
         get "/api/v1/items/find?min_price=1500"
 
         item_data = JSON.parse(response.body, symbolize_names: true)
-        # require 'pry'; binding.pry
+    
         expect(response).to be_successful
         expect(item_data).to have_key(:data)
         expect(item_data).to be_a(Hash)

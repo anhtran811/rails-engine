@@ -1,6 +1,8 @@
 class Api::V1::Items::SearchController < ApplicationController
   def show
-    if params[:min_price] || params[:max_price]
+    if (params[:name] && (params[:min_price] || params[:max_price]))
+      render json: ErrorSerializer.invalid_parameters("cannot send name with price"), status: 400
+    elsif params[:min_price] || params[:max_price]
         by_price
     elsif params[:name]
       by_name
@@ -28,68 +30,16 @@ class Api::V1::Items::SearchController < ApplicationController
   end
 
   def by_price 
-    if (params[:name] && params[:min_price] || params[:name] && params[:max_price])
-      render json: ErrorSerializer.invalid_parameters("cannot send name with price"), status: 400
+    if (params[:min_price].to_f < 0) || (params[:max_price].to_f < 0)
+      result = ErrorSerializer.bad_request("price cannot be less than zero")
+      status = 400
     else
-      if (params[:min_price].to_f < 0) || (params[:max_price].to_f < 0)
-        render json: { errors: "price cannot be less than zero" }, status: 400
-      elsif
-        if Item.search_by_price(params[:min_price], params[:max_price]).nil?
-          render json: ErrorSerializer.no_matches_found
-        else
-          render json: ItemSerializer.new(Item.search_by_price(params[:min_price], params[:max_price]))
-        end
-      elsif params[:min_price]
-        if Item.search_by_price(params[:min_price], nil).nil?
-          render json: ErrorSerializer.no_matches_found
-        else
-          render json: ItemSerializer.new(Item.search_by_price(params[:min_price], nil))
-        end
-      elsif params[:max_price]
-        if Item.search_by_price(nil, params[:max_price]).nil?
-          render json: ErrorSerializer.no_matches_found
-        else
-          render json: ItemSerializer.new(Item.search_by_price(nil, params[:max_price]))
-        end
+      items =  Item.search_by_price(params[:min_price], params[:max_price])
+      result = ItemSerializer.new(items)
+      if items.nil?
+        result = ErrorSerializer.no_matches_found
       end
     end
+    render json: result, status: status
   end
 end
-
-#   def by_price 
-#     if (params[:name] && params[:min_price] || params[:name] && params[:max_price])
-#       render json: { data: { errors: "cannot send name with price" } }, status: 400
-#     elsif
-#      (params[:min_price].to_f < 0) || (params[:max_price].to_f < 0)
-#       render json: { errors: "price cannot be less than zero" }, status: 400
-#     # elsif
-#     #     # if Item.search_by_price(params[:min_price], params[:max_price]).nil?
-#     #     #   render json: { data: { } }
-#     #     # else
-#     #       render json: ItemSerializer.new(Item.search_by_price(params[:min_price], params[:max_price]))
-#         # end
-#       elsif 
-     
-#         (params[:min_price] && params[:max_price] ) && ((params[:min_price].to_f) > (params[:max_price].to_f))
-#         require 'pry'; binding.pry
-#         # if Item.search_by_price(params[:min_price], nil).nil?
-#         # require 'pry'; binding.pry
-  
-#             render json: { data: {} }
-          
-        
-#           # require 'pry'; binding.pry
-#         # else
-#         #   render json: ItemSerializer.new(Item.search_by_price(params[:min_price], nil))
-#         # end
-#       # elsif (params[:min_price] && params[:max_price] ) && ((params[:min_price].to_f) < (params[:max_price].to_f))
-#       #   # if Item.search_by_price(nil, params[:max_price]).nil?
-#       #   # require 'pry'; binding.pry
-#       #     render json: { data: { } }
-#         else
-#           render json: ItemSerializer.new(Item.search_by_price(params[:min_price], params[:max_price]))
-#         end
-#       end
-#   #   end
-#   # end
-# end
