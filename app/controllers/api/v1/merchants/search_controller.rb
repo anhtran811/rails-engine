@@ -3,7 +3,7 @@ class Api::V1::Merchants::SearchController < ApplicationController
     if params[:name]
       render json: MerchantSerializer.new(Merchant.search_all_by_name(params[:name]))
     else 
-      render json: { data: {} }
+      render json: ErrorSerializer.no_matches_found
     end
   end
 end
